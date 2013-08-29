@@ -1,0 +1,3 @@
+[submodule "jsv4-php"]
+	path = jsv4-php
+	url = https://github.com/geraintluff/jsv4-php.git

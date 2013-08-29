@@ -1,0 +1,20 @@
+.ok {
+	color: green;
+}
+
+.error {
+	color: red;
+}
+
+.error_desc {
+  margin-left: 20px;
+}
+
+.error_msg {
+  font-style: italic;
+  font-weight: bold;
+}
+
+.error_path {
+  font-family: "Courier", sans-serif;
+}
