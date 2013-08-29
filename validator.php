@@ -22,8 +22,8 @@ $header = <<<HTML
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 	<title>validator | Datenregister Berlin</title>
-  <link rel="stylesheet" type="text/css" href="http://datenregister.berlin.de/css/style.css" />
-  <link rel="stylesheet" type="text/css" href="http://datenregister.berlin.de/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="/css/style.css" />
+  <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css" />
   <link href="http://fonts.googleapis.com/css?family=Ubuntu:400,700" rel="stylesheet" type="text/css" />	
   <link href="style/validator_style.css" rel="stylesheet" type="text/css" />	
 </head>
@@ -34,7 +34,7 @@ $header = <<<HTML
     <div class="header outer">
       <header class="container">
         <a href="/">
-          <img src="http://datenregister.berlin.de/CKAN-logo.png" alt="Datenregister Berlin Logo" title="Datenregister Berlin Logo" id="logo" />
+          <img src="/CKAN-logo.png" alt="Datenregister Berlin Logo" title="Datenregister Berlin Logo" id="logo" />
         </a>
         <div id="site-name">
           <a href="/">Datenregister Berlin </a>
