@@ -2,172 +2,168 @@
 
 include "jsv4-php/jsv4.php";
 
-define("SCHEMA", "validator/schema/od_berlin_schema.json");
+define("DATA_UPLOAD", "data_upload");
+define("DATA_URL", "data_url");
+define("DATA_TEXT", "data_text");
 
 
 function screen_log($message, $type) {
 	$out = "";
-	if ($type == "error") {
-		$out .= "<b class='error'>ERROR</b> ... ";
-	} else if ($type == "success") {
-		$out .= "<b class='ok'>OK</b> ... ";
+	switch ($type) {
+	  case "text-error":
+	    $label = "ERROR: ";
+	    break;
+	  case "text-success":
+	    $label = "OK: ";
+	    break;
+	  default:
+	    $label = "";
 	}
-	$out .= $message ."<br/>";
+	$out .= "<span class='$type'>$label$message</span><br/>";
 	
 	echo $out;
 }
 
-$header = <<<HTML
-<?xml version="1.0" encoding="UTF-8"?>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-<head>
-	<title>validator | Datenregister Berlin</title>
-  <link rel="stylesheet" type="text/css" href="http://datenregister.berlin.de/css/style.css" />
-  <link rel="stylesheet" type="text/css" href="http://datenregister.berlin.de/css/bootstrap.min.css" />
-  <link href="http://fonts.googleapis.com/css?family=Ubuntu:400,700" rel="stylesheet" type="text/css" />	
-  <link href="style/validator_style.css" rel="stylesheet" type="text/css" />	
-</head>
-
-<body class="index home no-sidebar">
-
-  <div id="wrap">
-    <div class="header outer">
-      <header class="container">
-        <a href="http://datenregister.berlin.de/">
-          <img src="http://datenregister.berlin.de/CKAN-logo.png" alt="Datenregister Berlin Logo" title="Datenregister Berlin Logo" id="logo" />
-        </a>
-        <div id="site-name">
-          <a href="http://datenregister.berlin.de/">Datenregister Berlin </a>
-        </div>
-
-      </header>
-    </div>
-    <div id="main" class="container">
-      <div class="row">
-        <div class="span9 content-outer">
-
-HTML;
-
-echo $header;
-
-$upload_file_path = $_FILES['uploadedfile']['tmp_name'];
-$basename = basename($_FILES['uploadedfile']['name']);
-
-$data_string = file_get_contents($upload_file_path);
-$schema_location = "http://" . $_SERVER['SERVER_NAME'] . "/" . SCHEMA;
-
-$data = json_decode($data_string);
-$schema = json_decode(file_get_contents($schema_location));
-
-if ($data) {
-  $result = Jsv4::validate($data, $schema);
-  if ($result->valid) {
-    screen_log("validation passed", "success");
+function get_data_from_url($url) {
+  if (empty($url)) {
+    screen_log("No URL specified", "text-error");
+    return NULL;
   } else {
-    screen_log("'$basename' not valid", "error");
-    $errors = $result->errors;
-    foreach($errors as $error) {
-      screen_log("Code [$error->code]", "error");
-      $message = "<div class='error_desc'>";
-      if ($error->message) {}
-        $message .= "<span class='error_msg'>$error->message</span><br/>";
-      if ($error->dataPath) {
-        $message .= "data path: <span class='error_path'>$error->dataPath</span><br/>";
-      }
-      if ($error->schemaKey) {
-        $message .= "schema key: <span class='error_path'>$error->schemaKey</span><br/>";
-      }
-      $message .= "</div>";
-      echo($message);
+    $data_string = file_get_contents($url);
+    if (empty($data_string)) {
+      screen_log("Could not load data from <code>$url</code>", "text-error");
+      return NULL;
+    } else {
+      return $data_string;
     }
   }
-} else {
-	screen_log("could not load '$basename' (no file sent?)", "error");
 }
 
-$footer = <<<HTML
-        </div>
-      </div>
-    </div>
-  </div>
+function parse_json($json)
+{
+    $result = json_decode($json);
+    switch (json_last_error())
+    {
+        case JSON_ERROR_DEPTH:
+            $error =  ' - Maximum stack depth exceeded';
+            break;
+        case JSON_ERROR_CTRL_CHAR:
+            $error = ' - Unexpected control character found';
+            break;
+        case JSON_ERROR_SYNTAX:
+            $error = ' - Syntax error, malformed JSON';
+            break;
+        case JSON_ERROR_NONE:
+        default:
+            $error = '';                    
+    }
+    if (!empty($error))
+        screen_log("could not parse as JSON: $error", "text-error");;        
+    
+    return $result;
+}
 
-  <div class="clearfix"></div>
-  <div class="footer outer">
-     <footer class="container">
-       <div class="row">
-         <div class="span4">
-           <h3 class="widget-title">Über Datenregister Berlin</h3>
-           <div class="textwidget">
-             <ul>
-               <li>
-                   <a href="/de/about">Was ist das?</a>
-               </li>
-               <li>
-                   Portal-Hauptseite: <a href="http://daten.berlin.de/">daten.berlin.de</a>
-               </li>
-               <li>API:
-                 <a href="/api/1">Einstieg</a> |
-                 <a href="http://docs.ckan.org/en/latest/api.html">Dokumentation</a>
-               </li>
-             </ul>
-           </div>
-         </div>
-         <div class="span4">
-           <h3 class="widget-title">Sektionen</h3>
-           <div class="textwidget">
-             <ul>
-               <li>
-                 <a href="/user">
-                   Benutzer
-                 </a>
-               </li>
-               <li>
-                 <a href="/tag">
-                   Tags
-                 </a>
-               </li>
-               <li>
-                 <a href="/stats">
-                   Statistiken
-                 </a>
-               </li>
-               <li>
-                 <a href="/revision">
-                   Revisionen
-                 </a>
-               </li>
-               <li>
-                 <a href="/ckan-admin">
-                   Seiten-Admin
-                 </a>
-               </li>
-             </ul>
-           </div>
-         </div>
-         <div class="span4">
-           <h3 class="widget-title">Sprachen</h3>
-           <div class="textwidget">
-             <ul>
-               <li>
-               <a href="/de/">
-                   Deutsch
-                 </a>
-               </li><li>
-               <a href="/en/">
-                   English
-                 </a>
-               </li>
-             </ul>
-           </div>
-         </div>
-       </div>
-     </footer>
-   </div> <!-- eo #container -->
-	</div>
-</body>
-</html>
+function get_data_string() {
+  $input_method = $_POST["input_radio"];
+  $data_string = NULL;
+  switch ($input_method) {
+    case DATA_UPLOAD:
+      screen_log("getting data to validate from file ...", "text-info");
+      $upload_file_path = $_FILES['uploadedfile']['tmp_name'];
+      if (!$upload_file_path) {
+        screen_log("no file specified for upload", "text-error");
+        break;
+      }
+      $basename = basename($_FILES['uploadedfile']['name']);
+      screen_log("getting data from <code>$basename</code> ...", "text-info");
+      $data_string = get_data_from_url($upload_file_path);
+      break;
+    case DATA_URL:
+      $url = $_POST[DATA_URL];
+      screen_log("getting data to validate from <code><a href='$url'>$url</a></code> ...", "text-info");
+      $data_string = get_data_from_url($url);
+      break;
+    case DATA_TEXT:
+      screen_log("getting data to validate from text area ...", "text-info");
+      $data_string = $_POST[DATA_TEXT];
+      break;
+    default:
+      screen_log("unknown input method '$input_method'", "text-error");
+  }
+  return $data_string;
+}
+
+
+include('header.php');
+
+screen_log("starting validation ...", "text-info");
+screen_log("trying to get schema ...", "text-info");
+$schema_location = $_POST["schema_uri"];
+$schema_string = get_data_from_url($schema_location);
+
+$input_method = $_POST["input_radio"];
+
+if ($schema_string) {
+  screen_log("schema loaded successfully from <code><a href='$schema_location'>$schema_location</a></code>", "text-success");
+
+  screen_log("parsing schema as JSON ...", "text-info");
+  $schema = parse_json($schema_string);
+  if ($schema) {
+    screen_log("schema parsed successfully", "text-success");
+    
+    $data_string = get_data_string();
+    
+    if ($data_string) {
+      screen_log("data loaded successfully", "text-success");
+
+      screen_log("parsing data as JSON ...", "text-info");
+      $data = parse_json($data_string);
+      if ($data) {
+        screen_log("JSON parsed successfully from data string", "text-success");
+
+        screen_log("validating data against schema ...", "text-info");
+        $result = Jsv4::validate($data, $schema);
+        if ($result->valid) {
+          screen_log("passed - your data conforms to the schema!", "text-success");
+        } else {
+          screen_log("data not valid", "text-error");
+          $errors = $result->errors;
+          foreach($errors as $error) {
+            screen_log("Code [$error->code]", "text-error");
+            $message = "<div class='error_desc'>";
+            if ($error->message) {
+              $message .= "<span class='error_msg'>$error->message</span><br/>";
+            }
+            if ($error->subResults) {
+              $message .= "<span class='error_submsg'>$error->subResults</span><br/>";
+            }
+            if ($error->dataPath) {
+              $message .= "data path: <span class='error_path'>$error->dataPath</span><br/>";
+            }
+            if ($error->schemaPath) {
+              $message .= "schema path: <span class='error_path'>$error->schemaPath</span><br/>";
+            }
+            $message .= "</div>";
+            echo($message);
+          }
+        }
+      } 
+    } else {
+      screen_log("no data found (or empty)", "text-error");
+    }
+  }
+}
+
+$back = <<<HTML
+
+          <hr/>
+          <p>
+            <a href=".">Back...</a>
+          </p>
 HTML;
 
-echo $footer;
+echo $back;
+
+include('footer.php');
 
 ?>

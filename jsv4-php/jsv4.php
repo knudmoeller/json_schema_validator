@@ -236,7 +236,17 @@ class Jsv4 {
 					return;
 				}
 			}
-			$this->fail(JSV4_ENUM_MISMATCH, "", "/enum", "Value must be one of the enum options");
+			// output enum options
+			$enum = [];
+			foreach ($this->schema->enum as $option) {
+			 $enum[] = "'" . $option . "'";
+			}
+			$this->fail(JSV4_ENUM_MISMATCH, 
+			  "", 
+			  "/enum", 
+			  "Value must be one of the enum options<br/>" .
+			  "Got '$this->data'<br/>" .
+			  "was expecting one of [" . implode($enum, ", ") . "]");
 		}
 	}
 	
@@ -533,6 +543,7 @@ class Jsv4Error extends Exception {
 	public $dataPath;
 	public $schemaPath;
 	public $message;
+	public $subResults;
 
 	public function __construct($code, $dataPath, $schemaPath, $errorMessage, $subResults=NULL) {
 		parent::__construct($errorMessage);
