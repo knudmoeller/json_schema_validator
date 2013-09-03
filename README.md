@@ -1,4 +1,9 @@
-og_schema
-=========
+json_schema_validator
+=====================
 
-Berlin Open Data JSON Schema and Validator
+* developed 2013, Knud Möller
+* based on https://github.com/geraintluff/jsv4-php
+
+## License
+
+This code is released under an MIT-style license (see `LICENSE-MIT.txt`).
