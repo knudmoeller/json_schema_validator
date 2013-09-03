@@ -6,4 +6,4 @@ json_schema_validator
 
 ## License
 
-This code is released under an MIT-style license (see `LICENSE-MIT.txt`).
+This code is released under an MIT-style license (see `LICENSE`).
