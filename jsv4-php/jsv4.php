@@ -237,7 +237,7 @@ class Jsv4 {
 				}
 			}
 			// output enum options
-			$enum = [];
+			$enum = array();
 			foreach ($this->schema->enum as $option) {
 			 $enum[] = "'" . $option . "'";
 			}
