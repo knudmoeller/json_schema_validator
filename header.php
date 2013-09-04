@@ -12,7 +12,7 @@
 </head>
 
 <body class="index home no-sidebar">
-
+  <?php include_once("analyticstracking.php") ?>
   <header class="header">
     <div class="container">
       <a href="/" title="Datalysator Web Data Consulting">
